@@ -1,0 +1,25 @@
+{
+    "name": "petclinic-owners-pets-mongodb-sink-001",
+    "config": {
+        "topics": "kstreams.owners-with-pets",
+        "connector.class": "com.mongodb.kafka.connect.MongoSinkConnector",
+        "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+        "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "value.converter.schemas.enable":false,
+        "tasks.max": "1",
+        "connection.uri":"mongodb://mongodb:27017",
+        "database":"petclinic",
+        "document.id.strategy":"com.mongodb.kafka.connect.sink.processor.id.strategy.ProvidedInKeyStrategy",
+        "post.processor.chain":"com.mongodb.kafka.connect.sink.processor.BlockListValueProjector,com.mongodb.kafka.connect.sink.processor.field.renaming.RenameByMapping",
+        "field.renamer.mapping":"[{\"oldName\":\"value.owner.id\", \"newName\":\"owner_id\"}]",
+        "value.projection.type":"BlockList",
+        "value.projection.list":"pets.id,pets.owner_id,pets.birth_date,pets.type_id",
+        "transforms":"createkey,flatkey,renameid",
+        "transforms.createkey.type":"org.apache.kafka.connect.transforms.ValueToKey",
+        "transforms.createkey.fields":"owner",
+        "transforms.flatkey.type":"org.apache.kafka.connect.transforms.Flatten$Key",
+        "transforms.flatkey.delimiter":"_",
+        "transforms.renameid.type": "org.apache.kafka.connect.transforms.ReplaceField$Key",
+        "transforms.renameid.renames": "owner_id:_id"
+    }
+}

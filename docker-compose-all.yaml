@@ -1,0 +1,128 @@
+version: "3.5"
+services:
+  zookeeper:
+    container_name: zookeeper
+    image: debezium/zookeeper:1.5
+    ports:
+      - 2181:2181
+      - 2888:2888
+      - 3888:3888
+  
+  kafka:
+    container_name: kafka
+    image: debezium/kafka:1.5
+    ports:
+      - 9092:9092
+    links:
+      - zookeeper
+    environment:
+      - ZOOKEEPER_CONNECT=zookeeper:2181
+  
+  mysql:
+    container_name: mysql
+    image: debezium/example-mysql:1.5
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=debezium
+      - MYSQL_USER=mysqluser
+      - MYSQL_PASSWORD=mysqlpw
+  
+  connect:
+    container_name: connect
+    image: debezium/connect:1.5
+    ports:
+      - 8083:8083
+    links:
+      - kafka
+      - mysql
+      - mongodb
+    volumes:
+      - ./docker/connectors/mongodb-kafka-connect-mongodb-1.5.0/:/kafka/connect/mongodb-kafka-connect-mongodb-1.5.0/
+      - ./docker/connectors/confluentinc-kafka-connect-jdbc-10.2.0/:/kafka/connect/confluentinc-kafka-connect-jdbc-10.2.0/
+    environment:
+      - BOOTSTRAP_SERVERS=kafka:9092
+      - GROUP_ID=1
+      - CONFIG_STORAGE_TOPIC=my_connect_configs
+      - OFFSET_STORAGE_TOPIC=my_connect_offsets
+      - STATUS_STORAGE_TOPIC=my_connect_statuses
+  
+  kstreams-table-joiner:
+    container_name: kstreams-table-joiner
+    image: mdblive21/kstreams-table-joiner:1.0
+    build:
+      context: kstreams-table-joiner
+      dockerfile: src/main/docker/Dockerfile.${QUARKUS_MODE:-jvm}
+    links:
+      - kafka
+    environment:
+      QUARKUS_KAFKA_STREAMS_BOOTSTRAP_SERVERS: kafka:9092
+  
+  quarkus-owner-service:
+    container_name: quarkus-owner-service
+    image: mdblive21/quarkus-owner-service:1.0
+    restart: on-failure
+    build:
+      context: quarkus-owner-service
+      dockerfile: src/main/docker/Dockerfile.${QUARKUS_MODE:-jvm}
+    ports:
+      - 8080:8080
+    depends_on:
+      - mongodb
+
+  mongodb-rs-setup:
+    container_name: mongodb-rs-setup
+    image: mongo:4.2
+    restart: on-failure
+    volumes:
+      - ./docker/.config/mongodb/mongosetup.sh:/scripts/mongosetup.sh
+    entrypoint: ["bash", "/scripts/mongosetup.sh"]
+    depends_on:
+      - mongodb
+  
+  mongodb:
+    hostname: mongodb
+    container_name: mongodb
+    image: mongo:4.2
+    restart: on-failure
+    command: ["--port", "27017", "--replSet", "rs0", "--bind_ip_all"]
+    expose:
+      - 27017
+    ports:
+      - 27017:27017
+    healthcheck:
+      test: echo 'rs.status().ok' | mongo admin --port 27017 --quiet | grep 1
+      interval: 30s
+      start_period: 60s
+
+  nginx:
+    image: nginx:1.20.0-alpine
+    container_name: nginx
+    volumes:
+      - ./docker/.config/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./docker/vol_nginx:/usr/share/nginx/html/
+    ports:
+      - 80:80 #TODO: 2 redirect issues in case host port isn't default 80
+    restart: always
+  
+  # tomcat:
+  #   image: tomcat:9.0.46-jdk8-adoptopenjdk-hotspot
+  #   container_name: tomcat
+  #   restart: on-failure
+  #   volumes:
+  #     - ./spring-petclinic/target/petclinic.war:/usr/local/tomcat/webapps/petclinic.war
+  #   ports:
+  #     - 9090:8080
+  #   depends_on:
+  #     - mysql
+
+  spring-petclinic:
+    container_name: spring-petclinic
+    image: mdblive21/spring-petclinic:1.0
+    build:
+      context: spring-petclinic
+      dockerfile: Dockerfile
+    depends_on:
+      - mysql
+    ports:
+      - 9090:8080
