@@ -104,17 +104,6 @@ services:
     ports:
       - 80:80 #TODO: 2 redirect issues in case host port isn't default 80
     restart: always
-  
-  # tomcat:
-  #   image: tomcat:9.0.46-jdk8-adoptopenjdk-hotspot
-  #   container_name: tomcat
-  #   restart: on-failure
-  #   volumes:
-  #     - ./spring-petclinic/target/petclinic.war:/usr/local/tomcat/webapps/petclinic.war
-  #   ports:
-  #     - 9090:8080
-  #   depends_on:
-  #     - mysql
 
   spring-petclinic:
     container_name: spring-petclinic

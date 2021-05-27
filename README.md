@@ -60,10 +60,10 @@ curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json"
 
 ### CDC from microservice (MongoDB) -> monolith (MySQL)
 
-1. Before processing writes at the microservice in MongoDB remove the MySQL source connector from the monolith database
+1. Before processing writes for owner data at the microservice in MongoDB update the MySQL source connector from the monolith database to ignore changes happening in the owners table. Otherwise we would try to do CDC for the same data from both sides which would lead to a propagation cycle.
 
 ```
-curl -i -X DELETE -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/petclinic-owners-pets-mysql-src-001
+curl -i -X PUT -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/petclinic-owners-pets-mysql-src-001/config -d @update-mysql-source-owners-pets.json
 ```
 
 2. Create MongoDB source connector  to capture data changes in the microservice
