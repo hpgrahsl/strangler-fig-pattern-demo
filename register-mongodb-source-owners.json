@@ -1,5 +1,5 @@
 {
-    "name": "petclinic-owners-mongodb-source-001",
+    "name": "petclinic-owners-mongodb-src-001",
     "config": {
         "connector.class": "io.debezium.connector.mongodb.MongoDbConnector",
         "key.converter": "org.apache.kafka.connect.json.JsonConverter",
