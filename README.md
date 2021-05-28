@@ -81,33 +81,29 @@ http POST http://localhost:8083/connectors/ < register-jdbc-mysql-sink-owners.js
 ## Consume messages from CDC-related Apache Kafka topics
 
 ```
-docker-compose exec kafka /kafka/bin/kafka-console-consumer.sh \
-    --bootstrap-server kafka:9092 \
-    --from-beginning \
-    --property print.key=true \
-    --topic mysql1.petclinic.owners
+docker run --tty --rm \
+    --network mdblive21-demo_default \
+    debezium/tooling:1.1 \
+    kafkacat -b kafka:9092 -C -t mysql1.petclinic.owners -o beginning -q | jq .
 ```
 
 ```
-docker-compose exec kafka /kafka/bin/kafka-console-consumer.sh \
-    --bootstrap-server kafka:9092 \
-    --from-beginning \
-    --property print.key=true \
-    --topic mysql1.petclinic.pets
+docker run --tty --rm \
+    --network mdblive21-demo_default \
+    debezium/tooling:1.1 \
+    kafkacat -b kafka:9092 -C -t mysql1.petclinic.pets -o beginning -q | jq .
 ```
 
 ```
-docker-compose exec kafka /kafka/bin/kafka-console-consumer.sh \
-    --bootstrap-server kafka:9092 \
-    --from-beginning \
-    --property print.key=true \
-    --topic kstreams.pets-with-visits
+docker run --tty --rm \
+    --network mdblive21-demo_default \
+    debezium/tooling:1.1 \
+    kafkacat -b kafka:9092 -C -t kstreams.owners-with-pets -o beginning -q | jq .
  ```
 
  ```
-docker-compose exec kafka /kafka/bin/kafka-console-consumer.sh \
-    --bootstrap-server kafka:9092 \
-    --from-beginning \
-    --property print.key=true \
-    --topic mongodb.petclinic.kstreams.owners-with-pets
+docker run --tty --rm \
+    --network mdblive21-demo_default \
+    debezium/tooling:1.1 \
+    kafkacat -b kafka:9092 -C -t mongodb.petclinic.kstreams.owners-with-pets -o beginning -q | jq .
 ```
