@@ -13,7 +13,7 @@ Before being able to spin up the docker-compose based demo environment please ma
 Spin up the demo environment by means of Docker compose:
 
 ```
-docker-compose -f docker-compose-all.yaml up
+docker-compose up
 ```
 
 ## Strangler Fig Proxy
@@ -81,7 +81,7 @@ curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json"
 ## Consume messages from CDC-related Apache Kafka topics
 
 ```
-docker-compose -f docker-compose-all.yaml exec kafka /kafka/bin/kafka-console-consumer.sh \
+docker-compose exec kafka /kafka/bin/kafka-console-consumer.sh \
     --bootstrap-server kafka:9092 \
     --from-beginning \
     --property print.key=true \
@@ -89,7 +89,7 @@ docker-compose -f docker-compose-all.yaml exec kafka /kafka/bin/kafka-console-co
 ```
 
 ```
-docker-compose -f docker-compose-all.yaml exec kafka /kafka/bin/kafka-console-consumer.sh \
+docker-compose exec kafka /kafka/bin/kafka-console-consumer.sh \
     --bootstrap-server kafka:9092 \
     --from-beginning \
     --property print.key=true \
@@ -97,7 +97,7 @@ docker-compose -f docker-compose-all.yaml exec kafka /kafka/bin/kafka-console-co
 ```
 
 ```
-docker-compose -f docker-compose-all.yaml exec kafka /kafka/bin/kafka-console-consumer.sh \
+docker-compose exec kafka /kafka/bin/kafka-console-consumer.sh \
     --bootstrap-server kafka:9092 \
     --from-beginning \
     --property print.key=true \
@@ -105,7 +105,7 @@ docker-compose -f docker-compose-all.yaml exec kafka /kafka/bin/kafka-console-co
  ```
 
  ```
-docker-compose -f docker-compose-all.yaml exec kafka /kafka/bin/kafka-console-consumer.sh \
+docker-compose exec kafka /kafka/bin/kafka-console-consumer.sh \
     --bootstrap-server kafka:9092 \
     --from-beginning \
     --property print.key=true \
