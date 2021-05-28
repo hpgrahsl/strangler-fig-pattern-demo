@@ -16,4 +16,4 @@ cp $NGINX_CONFIG_DIR/nginx_$arg.conf $NGINX_CONFIG_DIR/nginx.conf
 
 echo "restarting docker compose service nginx"
 
-docker-compose -f docker-compose-all.yaml restart nginx
+docker-compose restart nginx
