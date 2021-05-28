@@ -47,13 +47,13 @@ With the docker compose stack up and running, the proxy can be reconfigured by r
 1. Create MySQL source connector for owners + pets tables:
 
 ```
-curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-mysql-source-owners-pets.json
+http POST http://localhost:8083/connectors/ < register-mysql-source-owners-pets.json
 ```
 
 2. Create MongoDB sink connector for pre-joined owner with pets aggregates:
 
 ```
-curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-mongodb-sink-owners-pets.json
+http POST http://localhost:8083/connectors/ < register-mongodb-sink-owners-pets.json
 ```
 
 ## Apache Kafka Connect Setup for CDC Pipelines
@@ -63,19 +63,19 @@ curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json"
 1. Before processing writes for owner data at the microservice in MongoDB update the MySQL source connector from the monolith database to ignore changes happening in the owners table. Otherwise we would try to do CDC for the same data from both sides which would lead to a propagation cycle.
 
 ```
-curl -i -X PUT -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/petclinic-owners-pets-mysql-src-001/config -d @update-mysql-source-owners-pets.json
+http PUT http://localhost:8083/connectors/petclinic-owners-pets-mysql-src-001/config < update-mysql-source-owners-pets.json
 ```
 
 2. Create MongoDB source connector  to capture data changes in the microservice
 
 ```
-curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-mongodb-source-owners.json
+http POST http://localhost:8083/connectors/ < register-mongodb-source-owners.json
 ```
 
 3. Create MySQL JDBC sink connector  to propagate changes from the microservice into the monolith's database
 
 ```
-curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-jdbc-mysql-sink-owners.json
+http POST http://localhost:8083/connectors/ < register-jdbc-mysql-sink-owners.json
 ```
 
 ## Consume messages from CDC-related Apache Kafka topics
