@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -eo pipefail
+
 WORKING_DIR=`pwd`
 echo $WORKING_DIR
 
